@@ -26,7 +26,7 @@ function App() {
         </p>
       </div>
       <p className="read-the-docs">
-        Trying to schronize the local changes and the online ones
+        let us see how fast does the chnages reflect
       </p>
     </>
   )
