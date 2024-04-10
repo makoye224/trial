@@ -6,76 +6,51 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
-import ButtonGroup from "@mui/material/ButtonGroup";
-import EditIcon from "@mui/icons-material/Edit";
-import { Button, Checkbox } from "@mui/material";
-import { useState } from "react";
-import { AddingContext } from "../App";
-import { EditingContext } from "../App";
+import { Task, TaskContext } from "../TaskContext";
 import React, { useContext } from "react";
-
-function createData(
-  title: string,
-  description: string,
-  deadline: number,
-  priority: string,
-  isCompleteCheckBox: React.ReactNode,
-  action: React.ReactNode
-) {
-  return { title, description, deadline, priority, isCompleteCheckBox, action };
-}
-
-
-
+import { Button, ButtonGroup, Checkbox } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
 
 export default function TaskTable() {
+const { open, setOpen, editing, tasks, setTasks, setEditing, setIndexTaskEdit } = useContext(TaskContext);
 
-const [open, setOpen] = useContext(AddingContext);
-const { editing, tasks, setTasks, setEditing } = useContext(EditingContext);
+const handleCheckBoxClick = ()=>{
+  console.log("clicked checkbox")
+}
 
+const handleDelete = (index) => {
+  // Create a copy of the tasks array to avoid mutation
+  const newTasks = [...tasks];
+  // Remove the task at the specified index
+  newTasks.splice(index, 1);
 
-const [isChecked, setIsChecked] = useState(false);
+  // Update the tasks state with the modified array
+  setTasks(newTasks);
+};
 
-  const task = [
-    createData(
-      "Sleeping",
-      "8 hours",
-      9,
-      "med",
-      <Checkbox
-        checked={isChecked}
-        onChange={() => {
-          setIsChecked(!isChecked);
-          console.log(isChecked);
-        }}
-        inputProps={{ "aria-label": "controlled" }}
-      />,
-        <ButtonGroup orientation="vertical" aria-label="Vertical button group">
-          <Button
-            onClick={() => {
-                setOpen(true);
-                setEditing(true);
-              console.log(open);
-            }}
-            variant="contained"
-            startIcon={<EditIcon />}
-          >
-            UPDATE
-          </Button>
+const handleCheckBox = (index, task) => {
+  // Toggle the completion status of the task
+  const updatedTask = {
+    ...task,
+    isCompleteCheckBox: !task.isCompleteCheckBox,
+  };
 
-          {!isChecked && (
-            <Button
-              variant="contained"
-              color="error"
-              startIcon={<CancelRoundedIcon />}
-            >
-              DELETE
-            </Button>
-          )}
-        </ButtonGroup>
-    ),
-  ];
+  // Update the task in the array
+  const updatedTasks = [...tasks];
+  updatedTasks[index] = updatedTask;
+
+  // Set the updated tasks array to the state
+  setTasks(updatedTasks);
+};
+
+const handleUpdate = (index)=>{
+  setOpen(true);
+  setEditing(true);
+  setIndexTaskEdit(index);
+  console.log('this is the index ', index)
+}
 
 
   return (
@@ -105,19 +80,46 @@ const [isChecked, setIsChecked] = useState(false);
           </TableHead>
 
           <TableBody>
-            {tasks.map((row) => (
+            {tasks && tasks.map((task, index) => (
               <TableRow
-                key={row.title}
+                key={task.title}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
                 <TableCell align="center" component="th" scope="row">
-                  {row.title}
+                  {task.title}
                 </TableCell>
-                <TableCell align="center">{row.description}</TableCell>
-                <TableCell align="center">{row.deadline}</TableCell>
-                <TableCell align="center">{row.priority}</TableCell>
-                <TableCell align="center">{row.isCompleteCheckBox}</TableCell>
-                <TableCell align="center">{row.action}</TableCell>
+                <TableCell align="center">{task.description}</TableCell>
+                <TableCell align="center">{task.deadline}</TableCell>
+                <TableCell align="center">{task.priority}</TableCell>
+                <TableCell align="center">
+                <Checkbox
+                  checked={task.isCompleteCheckBox} // Reflect the actual value
+                  onChange={() => handleCheckBox(index, task)}
+                  inputProps={{ "aria-label": "controlled" }}
+                />
+                </TableCell>
+                <TableCell align="center">
+
+                <ButtonGroup orientation="vertical" aria-label="Vertical button group">
+          <Button
+            onClick={()=>handleUpdate(index)}
+            variant="contained"
+            startIcon={<EditIcon />}
+          >
+            UPDATE
+          </Button>
+          {!task.isCompleteCheckBox && (
+            <Button
+              variant="contained"
+              color="error"
+              startIcon={<CancelRoundedIcon />}
+              onClick={()=>handleDelete(index)}
+            >
+              DELETE
+            </Button>
+          )}
+        </ButtonGroup>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
