@@ -26,7 +26,7 @@ function App() {
         </p>
       </div>
       <p className="read-the-docs">
-        let us see how fast does the chnages reflect
+        let us see how fast does the changes reflect
       </p>
     </>
   )
